@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://serenia.io/sitemap.xml
+
+# Bloquear drafts de blog (acceso privado)
+Disallow: /api/
+Disallow: /blog/draft/
