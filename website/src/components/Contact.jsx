@@ -91,7 +91,7 @@ export default function Contact() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 36 }}>
               {[
-                { icon: <Mail size={16} />, text: 'hola@dataflowpro.io' },
+                { icon: <Mail size={16} />, text: 'hola@serenia.io' },
                 { icon: <Clock size={16} />, text: 'Respuesta en menos de 24h' },
                 { icon: <Globe size={16} />, text: 'Remoto · España · LATAM' },
               ].map(item => (

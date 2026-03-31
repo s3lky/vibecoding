@@ -37,7 +37,7 @@ export default function Navbar() {
         <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.02em' }}>
             <span style={{ color: 'var(--accent)', display: 'flex' }}><Hexagon size={22} strokeWidth={2} /></span>
-            DataFlow<span style={{ color: 'var(--accent)' }}>Pro</span>
+            Seren<span style={{ color: 'var(--accent)' }}>IA</span>
           </a>
 
           <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }} className="desktop-nav">

@@ -14,10 +14,10 @@ export default function Footer() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: '1.1rem' }}>
           <span style={{ color: 'var(--accent)' }}><Hexagon size={20} strokeWidth={2} /></span>
-          DataFlow<span style={{ color: 'var(--accent)' }}>Pro</span>
+          Seren<span style={{ color: 'var(--accent)' }}>IA</span>
         </div>
         <p style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
-          © 2026 DataFlowPro · Automatización & Calidad de Datos
+          © 2026 SerenIA · Automatización & Calidad de Datos
         </p>
         <nav style={{ display: 'flex', gap: 24 }}>
           {['#servicios', '#proceso', '#contacto'].map((href) => (
