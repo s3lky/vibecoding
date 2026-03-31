@@ -21,6 +21,9 @@ import Contact from './components/Contact';
 import ServicesPage from './pages/ServicesPage';
 import GlossaryPage from './pages/GlossaryPage';
 import FAQPage from './pages/FAQPage';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
+import AdminPage from './pages/AdminPage';
 import SEO from './components/SEO';
 
 function HomePage() {
@@ -50,6 +53,9 @@ export default function App() {
         <Route path="/servicios" element={<ServicesPage />} />
         <Route path="/glosario" element={<GlossaryPage />} />
         <Route path="/faq" element={<FAQPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/blog/admin" element={<AdminPage />} />
       </Routes>
       <Footer />
       <ChatWidget />
