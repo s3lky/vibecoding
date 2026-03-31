@@ -1,0 +1,13 @@
+{
+  "name": "SerenIA — Automatización & Calidad de Datos",
+  "short_name": "SerenIA",
+  "description": "Servicios profesionales de automatización con n8n e IA, calidad de datos y pipelines ETL/ELT.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060910",
+  "theme_color": "#60a5fa",
+  "lang": "es",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

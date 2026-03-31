@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, Plus } from 'lucide-react';
+import SEO from '../components/SEO';
 
 // ── Añade tus preguntas aquí ──────────────────────────────────────
 const faqData = [
@@ -122,6 +123,11 @@ export default function FAQPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingTop: 80 }}>
+      <SEO
+        title="FAQ — Preguntas frecuentes sobre automatización de datos y n8n"
+        description="Respuestas a las preguntas más habituales sobre nuestros servicios de automatización con n8n, pipelines ETL, calidad de datos, precios y proceso de trabajo."
+        path="/faq"
+      />
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '48px 24px' }}>
 
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--muted)', fontSize: '0.875rem', marginBottom: 40 }}

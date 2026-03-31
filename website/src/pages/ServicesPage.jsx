@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Check, Zap, Brain, RefreshCw, Archive, Link2, BarChart2 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const services = [
   {
@@ -116,6 +117,11 @@ Cada pipeline incluye linaje de datos, manejo de errores, reintentos y documenta
 export default function ServicesPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingTop: 80 }}>
+      <SEO
+        title="Catálogo de Servicios — Automatización n8n, ETL, Calidad de Datos"
+        description="Descripción detallada de todos nuestros servicios: automatización con n8n, calidad de datos con IA, pipelines ETL/ELT, curado de datos, integraciones y observabilidad."
+        path="/servicios"
+      />
       <div style={{ maxWidth: 1160, margin: '0 auto', padding: '48px 24px' }}>
 
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--muted)', fontSize: '0.875rem', marginBottom: 40, transition: 'color 0.2s' }}

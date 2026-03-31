@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Search } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const terms = [
   { term: 'ETL', category: 'Datos', def: 'Extract, Transform, Load. Proceso de extracción de datos de origen, su transformación (limpieza, normalización, enriquecimiento) y su carga en un destino como un data warehouse o base de datos.' },
@@ -54,6 +55,11 @@ export default function GlossaryPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingTop: 80 }}>
+      <SEO
+        title="Glosario de IA y Datos — ETL, n8n, LLM, Data Quality y más"
+        description="27 términos clave de inteligencia artificial, automatización de datos y data engineering explicados en español. ETL, ELT, n8n, LLM, RAG, data contract y más."
+        path="/glosario"
+      />
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 24px' }}>
 
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--muted)', fontSize: '0.875rem', marginBottom: 40 }}

@@ -21,10 +21,12 @@ import Contact from './components/Contact';
 import ServicesPage from './pages/ServicesPage';
 import GlossaryPage from './pages/GlossaryPage';
 import FAQPage from './pages/FAQPage';
+import SEO from './components/SEO';
 
 function HomePage() {
   return (
     <main>
+      <SEO />
       <Hero />
       <PainStrip />
       <Services />
