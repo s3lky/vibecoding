@@ -8,8 +8,8 @@ const fadeUp = (delay = 0) => ({
 });
 
 const stats = [
-  { num: '98%', label: 'Precisión de datos' },
-  { num: '10×', label: 'Velocidad de procesado' },
+  { num: '+50', label: 'Proyectos entregados' },
+  { num: '10×', label: 'Velocidad vs. manual' },
   { num: '0', label: 'Intervención manual' },
 ];
 
@@ -42,30 +42,34 @@ export default function Hero() {
             marginBottom: 28,
           }}>
             <Zap size={12} />
-            n8n · IA · ETL · Data Quality
+            Automatización · n8n · IA · ETL · Calidad de Datos
           </span>
         </motion.div>
 
         <motion.h1 {...fadeUp(0.2)} style={{
-          fontSize: 'clamp(2.8rem, 6vw, 5rem)',
+          fontSize: 'clamp(2.6rem, 5.5vw, 4.6rem)',
           fontWeight: 900,
-          lineHeight: 1.08,
+          lineHeight: 1.09,
           letterSpacing: '-0.04em',
-          marginBottom: 24,
-          maxWidth: 820,
+          marginBottom: 28,
+          maxWidth: 860,
         }}>
-          Automatiza tus datos.<br />
+          Tus datos trabajan para ti.<br />
           <span style={{
             background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>
-            Eleva tu negocio.
+            Tu equipo deja de hacerlo manualmente.
           </span>
         </motion.h1>
 
-        <motion.p {...fadeUp(0.3)} style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: 'var(--muted)', maxWidth: 580, marginBottom: 44, lineHeight: 1.75 }}>
-          Diseño e implemento pipelines de automatización con n8n e IA para limpiar,
-          curar y transformar tus datos — de fuente a destino, sin fricciones.
+        <motion.p {...fadeUp(0.3)} style={{ fontSize: 'clamp(1rem, 1.8vw, 1.12rem)', color: 'var(--muted)', maxWidth: 600, marginBottom: 16, lineHeight: 1.8 }}>
+          ¿Tu equipo pierde horas limpiando hojas de cálculo, conciliando sistemas que no se hablan
+          o esperando reportes que siempre llegan tarde?
+        </motion.p>
+        <motion.p {...fadeUp(0.35)} style={{ fontSize: 'clamp(0.9rem, 1.6vw, 1.05rem)', color: 'var(--text)', maxWidth: 600, marginBottom: 44, lineHeight: 1.8 }}>
+          Diseño e implemento pipelines de automatización con <strong>n8n e IA</strong> que limpian,
+          validan y mueven tus datos de forma autónoma — en producción desde la primera semana.
         </motion.p>
 
         <motion.div {...fadeUp(0.4)} style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 72 }}>
@@ -79,7 +83,7 @@ export default function Hero() {
           }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 0 48px rgba(99,179,237,0.5)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 0 32px rgba(99,179,237,0.35)'; }}>
-            Solicitar diagnóstico gratuito <ArrowRight size={16} />
+            Diagnóstico gratuito — sin compromiso <ArrowRight size={16} />
           </a>
           <a href="#servicios" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -91,7 +95,7 @@ export default function Hero() {
           }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.color = ''; }}>
-            Ver servicios →
+            Ver cómo lo hacemos →
           </a>
         </motion.div>
 

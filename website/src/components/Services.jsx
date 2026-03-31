@@ -7,43 +7,49 @@ const services = [
   {
     icon: <Zap size={28} />,
     title: 'Automatización con n8n',
-    desc: 'Workflows visuales que conectan tus herramientas, APIs y bases de datos. Sin código propietario, sin vendor lock-in.',
-    features: ['Flujos complejos multi-step', 'Integraciones con +400 servicios', 'Deployment cloud o self-hosted', 'Monitoreo y alertas automáticas'],
+    pain: 'Tu equipo ejecuta los mismos pasos a mano cada día',
+    desc: 'Workflows visuales que conectan tus herramientas, APIs y bases de datos. Sin código propietario, sin vendor lock-in. Cada flujo incluye reintentos, alertas y logs.',
+    features: ['Flujos complejos multi-step con condiciones', 'Integraciones con +400 servicios', 'Deployment cloud o self-hosted', 'Monitoreo y alertas automáticas'],
     featured: true,
     color: 'var(--accent)',
   },
   {
     icon: <Brain size={28} />,
     title: 'Calidad de Datos con IA',
-    desc: 'Modelos de lenguaje y ML para detectar anomalías, normalizar registros y enriquecer datos en tiempo real.',
-    features: ['Detección de duplicados y outliers', 'Normalización semántica con LLMs', 'Validación de esquemas automática', 'Scoring de calidad por campo'],
+    pain: 'No confías en tus datos porque salen mal con frecuencia',
+    desc: 'LLMs y ML para detectar anomalías, deduplicar registros y normalizar formatos inconsistentes en tiempo real, con scoring de calidad por campo.',
+    features: ['Detección de duplicados y outliers', 'Normalización semántica con LLMs', 'Validación automática de esquemas', 'Scoring de calidad por registro'],
     color: 'var(--accent2)',
   },
   {
     icon: <RefreshCw size={28} />,
     title: 'Pipelines ETL/ELT',
-    desc: 'Arquitecturas de datos robustas que mueven, transforman y cargan información con trazabilidad total.',
-    features: ['Ingesta desde APIs, DBs, archivos', 'Transformaciones declarativas', 'Carga incremental o full-refresh', 'Linaje y auditoría de datos'],
+    pain: 'Los datos tardan demasiado en llegar de origen a destino',
+    desc: 'Arquitecturas robustas que mueven, transforman y cargan información con trazabilidad total — desde CSVs y APIs hasta data warehouses en la nube.',
+    features: ['Ingesta desde APIs, DBs y archivos', 'Transformaciones con dbt o Python', 'Carga incremental o full-refresh', 'Linaje y auditoría completa'],
     color: 'var(--green)',
   },
   {
     icon: <Archive size={28} />,
     title: 'Curado de Datos',
-    desc: 'Estrategias y procesos para mantener un catálogo limpio, documentado y listo para analítica.',
-    features: ['Diseño de Data Catalog', 'Definición de data contracts', 'Reglas de negocio codificadas', 'Reportes de data health'],
+    pain: 'Nadie sabe qué significa cada campo ni de dónde viene',
+    desc: 'Procesos y contratos de datos que convierten tu catálogo en un activo estratégico: definiciones claras, propietarios y reglas de negocio codificadas.',
+    features: ['Diseño de Data Catalog', 'Definición de data contracts', 'Reglas de negocio testeadas', 'Reportes automáticos de data health'],
     color: 'var(--orange)',
   },
   {
     icon: <Link2 size={28} />,
     title: 'Integraciones & APIs',
-    desc: 'Conexión de sistemas heterogéneos: CRMs, ERPs, plataformas cloud, bases de datos relacionales y NoSQL.',
-    features: ['Webhooks y event-driven flows', 'Transformación JSON/CSV/XML', 'Rate limiting y manejo de errores', 'Documentación de integraciones'],
+    pain: 'Tienes 5 herramientas que no se hablan entre sí',
+    desc: 'Conexión de sistemas heterogéneos: CRMs, ERPs, plataformas cloud y bases de datos, con autenticación segura, manejo de errores y documentación.',
+    features: ['Webhooks y flujos event-driven', 'Transformación JSON/CSV/XML', 'Rate limiting y cola de reintentos', 'Documentación de cada integración'],
     color: 'var(--red)',
   },
   {
     icon: <BarChart2 size={28} />,
     title: 'Observabilidad & Reporting',
-    desc: 'Dashboards en tiempo real del estado de tus pipelines y KPIs de calidad para tomar decisiones con confianza.',
+    pain: 'Los fallos en tus pipelines los detectan los usuarios, no tú',
+    desc: 'Dashboards en tiempo real del estado de tus pipelines y KPIs de calidad: completitud, freshness, volumen y latencia — con alertas antes de que el problema llegue a producción.',
     features: ['Métricas de completitud y freshness', 'Alertas por Slack, email o webhook', 'Dashboards en Grafana o Metabase', 'SLA de datos automatizado'],
     color: 'var(--yellow)',
   },
@@ -86,7 +92,14 @@ function ServiceCard({ service, index }) {
         {service.icon}
       </div>
 
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 10 }}>{service.title}</h3>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 8 }}>{service.title}</h3>
+      {/* Pain line */}
+      <p style={{
+        fontSize: '0.78rem', color: '#f87171', fontWeight: 600, marginBottom: 10,
+        display: 'flex', alignItems: 'flex-start', gap: 6, lineHeight: 1.4,
+      }}>
+        <span style={{ flexShrink: 0, marginTop: 1 }}>⚠</span> {service.pain}
+      </p>
       <p style={{ color: 'var(--muted)', fontSize: '0.875rem', lineHeight: 1.65, marginBottom: 20, flex: 1 }}>{service.desc}</p>
 
       <ul style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -135,14 +148,14 @@ export default function Services() {
             fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16,
           }}>Servicios</span>
           <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-            Todo lo que necesitas para{' '}
+            Cada servicio resuelve{' '}
             <span style={{
               background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>datos de calidad</span>
+            }}>un dolor concreto</span>
           </h2>
           <p style={{ color: 'var(--muted)', fontSize: '1.05rem' }}>
-            Desde la ingesta hasta el reporte, cubro cada etapa del ciclo de vida del dato.
+            Desde la ingesta hasta el reporte final — cubrimos cada etapa y cada punto de fallo.
           </p>
         </motion.div>
 

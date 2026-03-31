@@ -8,6 +8,7 @@ import ChatWidget from './components/ChatWidget';
 // Home sections
 import Hero from './components/Hero';
 import Services from './components/Services';
+import PainStrip from './components/PainStrip';
 import AboutUs from './components/AboutUs';
 import Process from './components/Process';
 import Stack from './components/Stack';
@@ -25,6 +26,7 @@ function HomePage() {
   return (
     <main>
       <Hero />
+      <PainStrip />
       <Services />
       <AboutUs />
       <Process />
