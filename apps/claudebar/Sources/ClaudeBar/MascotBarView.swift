@@ -7,12 +7,14 @@ final class MascotBarView: NSView {
     // MARK: - Dades d'entrada
 
     var summary: UsageSummary? { didSet { needsDisplay = true } }
+    var rateLimits: RateLimits? { didSet { needsDisplay = true } }
 
     var agent: AgentState = .idle {
         didSet {
             guard agent != oldValue else { return }
             stateSince = CACurrentMediaTime()
             if agent == .done || agent == .waiting { jumpStart = stateSince }
+            if agent == .working { verbIndex = Int.random(in: 0..<Self.verbs.count); verbSince = stateSince }
         }
     }
 
@@ -23,9 +25,10 @@ final class MascotBarView: NSView {
 
     // MARK: - Mides
 
-    static let barWidth: CGFloat = 660
+    /// Amplada preferida. La Touch Bar la pot encongir si no hi cap tot (mínim 380).
+    static let barWidth: CGFloat = 540
     private let barHeight: CGFloat = 30
-    private let statsWidth: CGFloat = 248
+    private let statsWidth: CGFloat = 262
     private let pixel: CGFloat = 3
     private var spriteWidth: CGFloat { CGFloat(Sprite.width) * pixel }
     private var trackMinX: CGFloat { statsWidth + 8 }
@@ -45,6 +48,16 @@ final class MascotBarView: NSView {
     private var blinkUntil: Double = 0
     private var nextBlinkAt = CACurrentMediaTime() + 3
     private var timer: Timer?
+
+    // Spinner com el de Claude Code: l'asterisc que creix i s'encongeix, anada i tornada.
+    private static let spinnerFrames = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"]
+    private static let verbs = [
+        "Rumiant", "Cavil·lant", "Maquinant", "Barrinant", "Teclejant", "Cuinant",
+        "Remenant", "Enginyant", "Escarbotant", "Desbrossant", "Endreçant", "Polint",
+        "Esbrinant", "Trastejant", "Filant prim", "Fent màgia",
+    ]
+    private var verbIndex = 0
+    private var verbSince = CACurrentMediaTime()
 
     /// Després d'aquesta estona sense que Claude Code faci res, la mascota s'adorm.
     private let sleepAfter: Double = 10 * 60
@@ -128,6 +141,12 @@ final class MascotBarView: NSView {
             nextBlinkAt = now + Double.random(in: 2.5...6)
         }
 
+        // El verb canvia cada pocs segons mentre treballa.
+        if m == .running, now - verbSince > 4 {
+            verbIndex = (verbIndex + Int.random(in: 1..<Self.verbs.count)) % Self.verbs.count
+            verbSince = now
+        }
+
         // Quan t'espera, salta sense parar.
         if m == .alert, jumpStart == nil || now - jumpStart! > 0.55 { jumpStart = now }
         if m == .celebrating, jumpStart == nil || now - jumpStart! > 0.7 { jumpStart = now }
@@ -178,12 +197,63 @@ final class MascotBarView: NSView {
     }
 
     private func drawStats() {
-        let (l1, l2) = Format.touchBarLines(summary)
+        let now = Date()
         let font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
-        let strong: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: NSColor.white]
-        let soft: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: NSColor(white: 0.72, alpha: 1)]
-        NSAttributedString(string: l1, attributes: strong).draw(at: CGPoint(x: 6, y: 15))
-        NSAttributedString(string: l2, attributes: soft).draw(at: CGPoint(x: 6, y: 2))
+        let five = rateLimits?.current(RateLimits.fiveHour, now: now)
+        let seven = rateLimits?.current(RateLimits.sevenDay, now: now)
+
+        guard five != nil || seven != nil else {
+            // Sense quota (no hi ha statusline o fas servir clau d'API): només consums estimats.
+            let (l1, l2) = Format.touchBarLines(summary)
+            let strong: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: NSColor.white]
+            let soft: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: NSColor(white: 0.72, alpha: 1)]
+            NSAttributedString(string: l1, attributes: strong).draw(at: CGPoint(x: 6, y: 15))
+            NSAttributedString(string: l2, attributes: soft).draw(at: CGPoint(x: 6, y: 2))
+            return
+        }
+
+        let stale = rateLimits?.isStale(now: now) ?? true
+        let blockCost = summary?.activeBlock.map { Format.cost($0.totals.cost) } ?? ""
+        let todayCost = summary.map { Format.cost($0.today.cost) + " avui" } ?? ""
+        drawQuotaRow(y: 16, label: "5h", window: five, extra: blockCost, stale: stale, font: font)
+        drawQuotaRow(y: 3, label: "7d", window: seven, extra: todayCost, stale: stale, font: font)
+    }
+
+    /// "5h ▕████░░░▏ 23% →14:00      $1.92"
+    private func drawQuotaRow(y: CGFloat, label: String, window: RateWindow?, extra: String,
+                              stale: Bool, font: NSFont) {
+        let gray = NSColor(white: 0.6, alpha: 1)
+        let main = stale ? NSColor(white: 0.75, alpha: 1) : NSColor.white
+        func text(_ s: String, _ c: NSColor, _ x: CGFloat) {
+            NSAttributedString(string: s, attributes: [.font: font, .foregroundColor: c]).draw(at: CGPoint(x: x, y: y))
+        }
+
+        text(label, gray, 6)
+
+        let bar = NSRect(x: 26, y: y + 4, width: 54, height: 5)
+        NSColor(white: 1, alpha: 0.18).setFill()
+        NSBezierPath(roundedRect: bar, xRadius: 2, yRadius: 2).fill()
+        if let w = window {
+            let frac = CGFloat(min(max(w.usedPercent / 100, 0), 1))
+            quotaColor(w.usedPercent).withAlphaComponent(stale ? 0.5 : 1).setFill()
+            var fill = bar
+            fill.size.width = max(2, bar.width * frac)
+            NSBezierPath(roundedRect: fill, xRadius: 2, yRadius: 2).fill()
+            text(Format.percent(w.usedPercent), main, 85)
+            if let r = w.resetsAt { text("→" + Format.resetLabel(r), gray, 120) }
+        } else {
+            text("—", gray, 85)
+        }
+
+        let extraString = NSAttributedString(string: extra, attributes: [.font: font, .foregroundColor: gray])
+        extraString.draw(at: CGPoint(x: statsWidth - 6 - extraString.size().width, y: y))
+    }
+
+    private func quotaColor(_ pct: Double) -> NSColor {
+        if pct >= 90 { return .systemRed }
+        if pct >= 70 { return .systemOrange }
+        if pct >= 50 { return .systemYellow }
+        return .systemGreen
     }
 
     private func drawBubble(_ m: Mood, now: Double, headY: CGFloat) {
@@ -204,19 +274,22 @@ final class MascotBarView: NSView {
         case .sad:
             text = "×"
             color = NSColor.systemRed
-        case .running where activeSessions > 1:
-            text = "×\(activeSessions)"
-            color = NSColor(white: 0.85, alpha: 1)
+        case .running:
+            let frame = Self.spinnerFrames[Int(now / 0.12) % Self.spinnerFrames.count]
+            text = "\(frame) \(Self.verbs[verbIndex])…" + (activeSessions > 1 ? " ×\(activeSessions)" : "")
+            color = Sprite.body
         default:
             return
         }
-        let font = NSFont.systemFont(ofSize: 12, weight: .heavy)
+        let font = m == .running
+            ? NSFont.systemFont(ofSize: 11, weight: .semibold)
+            : NSFont.systemFont(ofSize: 12, weight: .heavy)
         let s = NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: color])
         let size = s.size()
         // Al costat del cap, cap on mira; si no hi cap, a l'altre costat.
         var bx = dir >= 0 ? x + spriteWidth + 2 : x - size.width - 2
         if bx + size.width > bounds.width { bx = x - size.width - 2 }
-        if bx < trackMinX { bx = x + spriteWidth + 2 }
+        if bx < trackMinX { bx = min(x + spriteWidth + 2, bounds.width - size.width) }
         let by = min(headY - size.height + 4, barHeight - size.height)
         s.draw(at: CGPoint(x: bx, y: max(0, by)))
     }

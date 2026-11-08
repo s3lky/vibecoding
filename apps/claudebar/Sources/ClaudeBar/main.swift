@@ -10,12 +10,20 @@ if args.count > 1 {
         HookHandler.runFromStdin()
         exit(0)
 
+    case "statusline":
+        StatusLine.runFromStdin()
+        exit(0)
+
     case "install-hooks":
         let exe = Bundle.main.executablePath ?? args[0]
         do {
-            let backup = try HookInstaller.install(executable: exe)
+            let r = try HookInstaller.install(executable: exe)
             print("Hooks instal·lats a \(HookInstaller.settingsURL().path)")
-            if let backup { print("Còpia de seguretat: \(backup.path)") }
+            if let backup = r.backup { print("Còpia de seguretat: \(backup.path)") }
+            if r.statusLineSkipped {
+                print("Ja tens una statusline pròpia: no l'he tocada, així que no hi haurà quota.")
+            }
+            print("Reinicia les sessions de Claude Code perquè ho carreguin.")
             exit(0)
         } catch {
             FileHandle.standardError.write(Data("Error: \(error)\n".utf8))
@@ -42,6 +50,16 @@ if args.count > 1 {
         if s.week.unpricedTokens > 0 {
             print("tokens sense preu (model desconegut): \(Format.tokens(s.week.unpricedTokens))")
         }
+        if let rl = RateLimitStore.load() {
+            for key in rl.windows.keys.sorted() {
+                let w = rl.windows[key]!
+                let reset = w.resetsAt.map { " reset \(Format.resetLabel($0))" } ?? ""
+                print("quota \(key): \(Format.percent(w.usedPercent))\(reset)")
+            }
+            print("quota llegida \(Format.ago(rl.updated))")
+        } else {
+            print("quota: sense dades (falta la statusline o Claude Code < 2.1.80)")
+        }
         print("estat: \(SessionStore.aggregate(SessionStore.load()).state.rawValue)")
         exit(0)
 
@@ -53,6 +71,7 @@ if args.count > 1 {
           ClaudeBar install-hooks    afegeix els hooks a ~/.claude/settings.json
           ClaudeBar uninstall-hooks  els treu
           ClaudeBar hook             (ús intern dels hooks)
+          ClaudeBar statusline       (ús intern de la statusline de Claude Code)
         """)
         exit(0)
 

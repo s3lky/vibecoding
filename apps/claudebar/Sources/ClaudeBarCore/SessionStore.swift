@@ -36,13 +36,15 @@ public struct AggregateState: Equatable {
 /// Cada sessió de Claude Code té el seu fitxer JSON a ~/.claudebar/sessions.
 /// El hook l'escriu i l'app el llegeix. Sense sockets ni dimonis: només fitxers.
 public enum SessionStore {
-    public static var directory: URL {
+    /// ~/.claudebar (o $CLAUDEBAR_HOME): aquí hi ha tot el que escriuen els hooks i la statusline.
+    public static var baseDirectory: URL {
         if let custom = ProcessInfo.processInfo.environment["CLAUDEBAR_HOME"], !custom.isEmpty {
-            return URL(fileURLWithPath: custom).appendingPathComponent("sessions")
+            return URL(fileURLWithPath: custom)
         }
-        return FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".claudebar/sessions")
+        return FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".claudebar")
     }
+
+    public static var directory: URL { baseDirectory.appendingPathComponent("sessions") }
 
     // Temps màxims abans de considerar un estat caducat (Claude Code mort, terminal tancat...).
     static let workingTTL: TimeInterval = 15 * 60

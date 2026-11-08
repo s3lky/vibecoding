@@ -4,6 +4,13 @@ import AppKit
 final class TouchBarController: NSObject, NSTouchBarDelegate {
     static let trayId = NSTouchBarItem.Identifier("local.claudebar.tray")
     static let mascotId = NSTouchBarItem.Identifier("local.claudebar.mascot")
+    static let askId = NSTouchBarItem.Identifier("local.claudebar.ask")
+    static let yoloId = NSTouchBarItem.Identifier("local.claudebar.yolo")
+
+    /// Botó "Pregunta": obre la finestreta per escriure i després claude al terminal.
+    var onAsk: (() -> Void)?
+    /// Botó vermell: claude --dangerously-skip-permissions.
+    var onYolo: (() -> Void)?
 
     let mascotView: MascotBarView
     private var trayItem: NSCustomTouchBarItem?
@@ -30,7 +37,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private lazy var touchBar: NSTouchBar = {
         let bar = NSTouchBar()
         bar.delegate = self
-        bar.defaultItemIdentifiers = [Self.mascotId]
+        bar.defaultItemIdentifiers = [Self.mascotId, .fixedSpaceSmall, Self.askId, Self.yoloId]
         return bar
     }()
 
@@ -97,11 +104,38 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     // MARK: - NSTouchBarDelegate
 
     func touchBar(_ touchBar: NSTouchBar, makeItemForIdentifier identifier: NSTouchBarItem.Identifier) -> NSTouchBarItem? {
-        guard identifier == Self.mascotId else { return nil }
-        let item = NSCustomTouchBarItem(identifier: identifier)
-        mascotView.translatesAutoresizingMaskIntoConstraints = false
-        mascotView.widthAnchor.constraint(equalToConstant: MascotBarView.barWidth).isActive = true
-        item.view = mascotView
+        switch identifier {
+        case Self.mascotId:
+            let item = NSCustomTouchBarItem(identifier: identifier)
+            mascotView.translatesAutoresizingMaskIntoConstraints = false
+            // Amplada preferida, però si no hi cap tot, que s'encongeixi la mascota i no els botons.
+            let preferred = mascotView.widthAnchor.constraint(equalToConstant: MascotBarView.barWidth)
+            preferred.priority = .defaultHigh
+            preferred.isActive = true
+            mascotView.widthAnchor.constraint(greaterThanOrEqualToConstant: 380).isActive = true
+            item.view = mascotView
+            return item
+
+        case Self.askId:
+            return button(identifier, title: "✻ Pregunta", color: Sprite.body, action: #selector(askTapped))
+
+        case Self.yoloId:
+            // Vermell perquè quedi clar que aquest NO et demana permís per a res.
+            return button(identifier, title: "⚡︎ claude", color: .systemRed, action: #selector(yoloTapped))
+
+        default:
+            return nil
+        }
+    }
+
+    private func button(_ id: NSTouchBarItem.Identifier, title: String, color: NSColor, action: Selector) -> NSTouchBarItem {
+        let item = NSCustomTouchBarItem(identifier: id)
+        let b = NSButton(title: title, target: self, action: action)
+        b.bezelColor = color
+        item.view = b
         return item
     }
+
+    @objc private func askTapped() { onAsk?() }
+    @objc private func yoloTapped() { onYolo?() }
 }

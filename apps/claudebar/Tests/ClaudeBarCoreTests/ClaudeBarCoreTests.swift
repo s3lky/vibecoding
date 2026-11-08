@@ -168,3 +168,62 @@ final class FormatTests: XCTestCase {
         XCTAssertEqual(Format.cost(18.24), "$18.2")
     }
 }
+
+final class RateLimitTests: XCTestCase {
+    func testParseObjectShapeWithEpochSeconds() throws {
+        let json = #"""
+        {"model":{"id":"claude-opus-5-5","display_name":"Opus 5.5"},
+         "rate_limits":{"five_hour":{"used_percentage":23.5,"resets_at":1893456000},
+                        "seven_day":{"used_percentage":41,"resets_at":1893888000}}}
+        """#
+        let now = Date(timeIntervalSince1970: 1893400000)
+        let rl = try XCTUnwrap(RateLimitStore.parse(statusLineInput: Data(json.utf8), now: now))
+        XCTAssertEqual(rl.model, "Opus 5.5")
+        XCTAssertEqual(rl.current(RateLimits.fiveHour, now: now)?.usedPercent, 23.5)
+        XCTAssertEqual(rl.windows["seven_day"]?.resetsAt, Date(timeIntervalSince1970: 1893888000))
+        // Passat el reset, no sabem quant portes.
+        XCTAssertNil(rl.current(RateLimits.fiveHour, now: Date(timeIntervalSince1970: 1893456001)))
+        XCTAssertEqual(StatusLine.render(input: Data(json.utf8), now: now), "Opus 5.5 · 5h 24% · 7d 41%")
+    }
+
+    func testParseListShapeWithISODates() throws {
+        let json = #"{"rate_limits":[{"kind":"five_hour","percentUsed":7,"resetsAt":"2030-01-01T10:00:00Z"},{"kind":"seven_day_opus","percentUsed":80.5}]}"#
+        let rl = try XCTUnwrap(RateLimitStore.parse(statusLineInput: Data(json.utf8)))
+        XCTAssertEqual(rl.windows["five_hour"]?.usedPercent, 7)
+        XCTAssertNotNil(rl.windows["five_hour"]?.resetsAt)
+        XCTAssertEqual(rl.extraKeys, ["seven_day_opus"])
+    }
+
+    func testNoRateLimitsMeansNil() {
+        let json = #"{"model":{"display_name":"Sonnet 5.5"}}"#
+        XCTAssertNil(RateLimitStore.parse(statusLineInput: Data(json.utf8)))
+        XCTAssertEqual(StatusLine.render(input: Data(json.utf8)), "Sonnet 5.5")
+    }
+
+    func testStatusLineNeverOverwritesYours() {
+        let mine: [String: Any] = ["statusLine": ["type": "command", "command": "~/my-line.sh"]]
+        let (out, ok) = HookInstaller.applyStatusLine(to: mine, command: "x statusline # claudebar")
+        XCTAssertFalse(ok)
+        XCTAssertEqual((out["statusLine"] as? [String: Any])?["command"] as? String, "~/my-line.sh")
+
+        let (installed, ok2) = HookInstaller.applyStatusLine(to: [:], command: "x statusline # claudebar")
+        XCTAssertTrue(ok2)
+        let (removed, _) = HookInstaller.applyStatusLine(to: installed, command: nil)
+        XCTAssertNil(removed["statusLine"])
+    }
+}
+
+final class TerminalScriptTests: XCTestCase {
+    func testPromptIsNeverInterpretedByTheShell() {
+        let s = TerminalScript.make(directory: "/tmp/a'b", skipPermissions: true, prompt: "it's $(rm -rf ~)")
+        XCTAssertTrue(s.contains(#"cd '/tmp/a'\''b' || exit 1"#))
+        XCTAssertTrue(s.contains(#"CLAUDEBAR_PROMPT='it'\''s $(rm -rf ~)'"#))
+        XCTAssertTrue(s.contains("claude --dangerously-skip-permissions \"$CLAUDEBAR_PROMPT\""))
+    }
+
+    func testDashPromptGetsSeparator() {
+        let s = TerminalScript.make(directory: "/tmp", skipPermissions: false, prompt: "-v?")
+        XCTAssertTrue(s.contains(#"claude -- "$CLAUDEBAR_PROMPT""#))
+        XCTAssertFalse(s.contains("dangerously"))
+    }
+}
