@@ -24,6 +24,14 @@ public struct SessionRecord: Codable, Equatable {
     public var event: String
     public var cwd: String?
     public var updated: Date
+
+    public init(sessionId: String, state: AgentState, event: String, cwd: String?, updated: Date) {
+        self.sessionId = sessionId
+        self.state = state
+        self.event = event
+        self.cwd = cwd
+        self.updated = updated
+    }
 }
 
 public struct AggregateState: Equatable {
@@ -31,6 +39,12 @@ public struct AggregateState: Equatable {
     /// Sessions que estan treballant o esperant-te.
     public var activeSessions: Int
     public var lastUpdate: Date?
+
+    public init(state: AgentState, activeSessions: Int, lastUpdate: Date? = nil) {
+        self.state = state
+        self.activeSessions = activeSessions
+        self.lastUpdate = lastUpdate
+    }
 }
 
 /// Cada sessió de Claude Code té el seu fitxer JSON a ~/.claudebar/sessions.
